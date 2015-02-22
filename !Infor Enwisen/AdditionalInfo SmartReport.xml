@@ -1,0 +1,74 @@
+﻿<Report name="additionalInfoReport" code="[*me.code*]" rowxslt="X3e_ExtRow" return="[*output*]" xslt="[*xslt*]" ext="autoHeight: true,">
+  <Locales>
+    <Locale name="Global" path="\Patterns\Onboard\Resources\v4-5\TourProcessor\[*localecode*].xml" />
+  </Locales>
+  <Constants>   
+    <Const name="StartDate" value="Start Date:" />
+    <Const name="Recruiter" value="Recruiter Name:" />
+    <Const name="MidtownNursing" value="Midtown Nursing:" />
+    <Const name="MidtownNonNursing" value="Midtown non-Nursing:" />
+    <Const name="SinaiGrace" value="Sinai-Grace:" />
+    <Const name="HuronValley" value="Huron Valley - Sinai:" />
+    <!--<Const name="Position" value="Position:" />-->
+  </Constants>
+  <Variables>
+    <Variable name="user.userid" source="session" object="UserLogin" field="AccountID" />
+    <Variable name="me.code" source="self" />
+    <Variable name="report" source="self" field="me.name" />
+    <Variable name="xslt" source="varhash" default="X3e_ExtReport" />
+    <Variable name="output" source="varhash" default="report" />
+    <Variable name="localecode" source="Session" object="GlobalInfo" default="en-US" field="Locale" />
+  </Variables>
+
+  <Datasource/>
+  <Query>
+    <Select distinct="true">      
+      <Selectfield name="isnull(MgrLookup.firstName, '') + ' ' + isnull(MgrLookup.LastName, '')" alias="MgrName"/>
+      <Selectfield name="isnull(ProcNewHires.JobTitle, '')" alias="Position"/>
+      <Selectfield name="CONVERT(varchar(10), ProcNewHires.StartDate, 101)" alias="StartDate"/>
+      <Selectfield name="phc.recname" alias="RecruiterName"/>
+    </Select>
+    <From value=" ProcNewHires
+	left outer join T_cususer MgrLookup on procNewHires.mgrUserId = MgrLookup.AccountId
+	left outer join T_cususer RecruiterLookup on procNewHires.RecruiterUserID = RecruiterLookup.AccountId
+	left outer join procNewHiresCustom phc on procNewHires.userID = phc.UserID"/>
+    <Where>
+      <Condition value="procNewHires.UserID = '[SQL*user.userid*]'" default="true"/>
+    </Where>
+    <Numberofrecords value="" start=""/>
+  </Query>
+  <Rowdef label="" style="">
+    <Form name="additionalInfoForm" method="post" action="Page.aspx">
+      <Coldef name="cldf0" label="" visible="true">
+        <Xsl><![CDATA[    
+            <div id="aiStartDate">
+              <span id="aiStartDateLabel"><b>[$StartDate$]</b> <br/> </span>
+              <span id="aiStartDateData"><xsl:value-of select="sw:Convert_ST_To_LT(sw:F(., 'StartDate'),'shortDateWithOutTime')"/></span>
+            </div><x/>       
+            <div id="aiRecruiter">
+              <span id="aiRecruiterLabel"><b>[$Recruiter$]</b> <br/> </span>
+              <span id="aiRecruiterData">&nbsp;<xsl:value-of select="sw:F(., 'RecruiterName')"/></span>
+            </div><x/>
+			<div id="aiMidtownNursing">
+              <span id="aiMidtownNursingLabel"><b>[$MidtownNursing$]</b> <br/> </span>
+              <span id="aiMidtownNursingData">&nbsp;313/578-3033</span>
+            </div><x/>		
+			<div id="aiMidtownNursing">
+              <span id="aiMidtownNonNursingLabel"><b>[$MidtownNonNursing$]</b> <br/> </span>
+              <span id="aiMidtownNonNursingData">&nbsp;313/578-3033</span>
+            </div><x/>	
+			<div id="aiMidtownNursing">
+              <span id="aiSinaiGraceLabel"><b>[$SinaiGrace$]</b> <br/> </span>
+              <span id="aiSinaiGraceData">&nbsp;313/578-3033</span>
+            </div><x/>	
+			<div id="aiMidtownNursing">
+              <span id="aiHuronValleyLabel"><b>[$HuronValley$]</b> <br/> </span>
+              <span id="aiHuronValleyData">&nbsp;313/578-3033</span>
+            </div><x/>	
+          ]]>
+        </Xsl>
+      </Coldef>
+      <Data stripecolor=""/>
+    </Form>
+  </Rowdef>
+</Report>

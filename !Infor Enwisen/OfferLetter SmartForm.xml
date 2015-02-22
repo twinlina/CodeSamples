@@ -1,0 +1,688 @@
+<Form name="frmForm" title="[$OfferLetter$]" action="Page.aspx?code=[*me.code*]" layout="full" width="" method="POST" xslt="X3e_ExtForm" ext="labelWidth: 250, buttonAlign: 'right'," locale="global">
+  <Locales>
+    <Locale name="Global" path="\Patterns\Onboard\Resources\v4-5\TourForms\[*localecode*].xml" />
+  </Locales>
+  <Constants>
+    <Const name="OfferLetter" value="Offer Letter" />
+    <Const name="Irelease" value="I release and hold harmless all parties involved from any and all liability for damages arising from requesting, procuring or furnishing the requested information except with respect to a violation of the Fair Credit Reporting Act. I authorize the employer and its agent/credit reporting agency and all associated entries and its clients to receive any criminal history information or credit report pertaining to me in the files of any state or local criminal justice agency." />
+    <Const name="PersonalInformation" value="Personal Information" />
+    <Const name="Dear" value="Dear" />
+    <Const name="Wearepleased" value="We are pleased to confirm your acceptance of our conditional offer of employment as " />
+    <Const name="attheDetroit" value=" at the Detroit Medical Center at " />
+    <Const name="Furtherdetails" value=". Further details of your position are:" />
+    <Const name="Shift" value="Shift:" />
+    <Const name="Benefitstatus" value="Benefit Status:" />
+    <Const name="Payrate" value="Pay Rate:" />
+    <Const name="Typeofposition" value="Type of Position:" />
+    <Const name="hourly" value="Hourly" />
+    <Const name="salary" value="Salary" />
+    <Const name="HorS" value="H &#61; Hourly, S &#61; Salary" />
+    <Const name="Supervisor" value="Supervisor:" />
+    <Const name="Whocanbereached" value=", who can be reached at" />
+    <Const name="Employeeid" value="Employee ID&#35;:" />
+    <Const name="Tentativestart" value="TENTATIVE Start Date:" />
+    <Const name="Perdetroitmedical" value="Per Detroit Medical Center policy, all job offers are contingent upon successful completion of: 1&#41; a pre&#45;employment physical exam, which includes a drug screen, nicotine screen, antibody TITERS testing, flu vaccination and TB skin test; 2&#41; reference verification; 3&#41; criminal background check, 4&#41; employment eligibility verification,  &#40;Completion of the I&#45;9 Form requires that you provide documentation which supports your legal right to work in the U.S.&#41; and 5&#41; completion of Compliance &#40;Net Learning&#41; Training, all prior to your start date.  Your hire is also dependent upon the DMC having a continuing need for personnel in the position offered as of your start date. " />
+	<!--
+    <Const name="Itisaviolation" value="It is a violation of the DMC Nepotism Policy for an employee to work permanently under the supervision &#40;indirect or direct&#41; of a relative. In your new position, will anyone in department supervision &#47; management to which you were hired be your relative&#63;" />
+    <Const name="Ifyesrelative" value="If yes, Relative Name" />
+    <Const name="Relationship" value="Relationship" /> -->
+    <Const name="Ifnoindicate" value="&#40;if no, indicate N&#47;A&#41;" />
+    <Const name="Understateand" value="Under state and federal law, if you require a reasonable accommodation to perform the work for which you have been hired, please notify a member of the staff where your physical is conducted." />
+    <Const name="Humanresources" value="Human Resources will contact you to confirm your start date once the above requirements have been satisfied. We are looking forward to having you join the Detroit Medical Center. If you have any questions regarding the new hire process, please contact me, or our campus recruiting team general line:" />
+    <Const name="ElectronicSignature" value="Electronic Signature" />
+    <Const name="Bytypingmyfullname" value="By typing my full legal name below, I am signing and indicate my acceptance of the offer as described above." />
+    <Const name="EmployeeSignature" value="E&#45;Signature" />
+    <Const name="Legalfullname" value="&#40;Legal Full Name&#41;" />
+    <Const name="BirthDate" value="Birth Date" />
+    <Const name="msgInvalidBirthDate" value="Invalid Birth Date. Minimum age is 14 years."/>    
+    <Const name="IDType" value="ID Type" />    
+    <Const name="Select..." value="Select..." />
+    <Const name="DriversLicense" value="Driver's License" />
+    <Const name="IDNumber" value="ID Number" />
+    <Const name="SelfIDState" value="State" />
+    <Const name="Signature" value="Signature" />
+    <Const name="SignedElectronically" value="Signed Electronically" />
+	<Const name="SignatureInstructions" value="By typing my full legal name below, I am signing and indicate my acceptance of the offer as described above." />
+	<Const name="Date" value="Date" />
+	
+  </Constants>
+
+  <Envelope creator="[*user.guserid*]" from="[*user.guserid*]" subject="[*me.title*]" status="[*form.status*]" formcode="[*me.code*]" history="false">
+    <Custom1 field="userprocessstepid" value=""/>
+    <Custom2 field="userstepid" value=""/>
+    <CustomID1 field="userprocessid" value=""/>
+  </Envelope>
+
+  <Variables>
+    <Variable name="user.userid" source="session" object="UserLogin" field="AccountID"/>
+    <Variable name="user.guserid" source="session" object="UserLogin" field="UserID"/>
+    <Variable name="me.title" source="self"/>
+    <Variable name="me.code" source="self"/>
+    <Variable name="me.stepid" source="self"/>
+    <Variable name="me.step" source="self"/>
+    <Variable name="form" source="self" field="me.name"/>
+    <Variable name="envelopeid" source="varhash" default=""/>
+    <!--  The next three variables are used for workflow required tasks -->
+    <Variable name="userProcessID" source="varhash" default="0"/>
+    <Variable name="stageTrackingID" source="varhash" default="0"/>
+    <Variable name="stepCode" source="varhash" default=""/>
+    <Variable name="updateRequired" source="varhash" default="0"/>
+    <Variable name="tkn.userid" source="query" query="SELECT CASE WHEN LEN('[*envelopeid*]') = 0 THEN '[*user.userid*]' ELSE (SELECT UserId FROM EnvUserProcesses WHERE Id = (SELECT CustomID1 FROM T_swEnvelopes WHERE ID = '[*envelopeid*]')) END"/>
+    
+    <Variable name="tkn.clientName" source="query" query="SELECT name FROM t_cbeorganization" />
+	
+	
+	<!-- Added for Date  -->
+	<Variable name="Date" source="query" query="SELECT CONVERT(varchar(10), GETDATE(), 101)" />
+	<!-- Added for New Hire Name  -->
+	<Variable name="NewHireName" source="query" query="SELECT (isnull(firstname,'') + ' ' + isnull(lastname,'')) FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Address1  -->
+	<Variable name="Address1" source="query" query="SELECT ((Address1 + ' ' + Address2)) FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Address2-->
+	<Variable name="Address2" source="query" query="select case when pnh.country IN ('CAN','CA') then ((pnh.City + ', ' + isnull(pnhc.cusProvince,'')  + ' ' + pnh.PostalCode)) else ((pnh.City + ', ' + pnh.State + ' ' + pnh.PostalCode)) end FROM procNewHires pnh LEFT JOIN dbo.procNewHiresCustom pnhc ON pnhc.userid = pnh.userid WHERE pnh.userid = '[*tkn.userid*]'" />
+	<!-- Added for Prefix-->
+	<Variable name="Prefix" source="query" query="SELECT Prefix FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Prefix Name  -->
+	<Variable name="PrefixName" source="query" query="SELECT (isnull(prefix,'') + ' ' + isnull(firstname,'') + ' ' + isnull(lastname,'')) FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for JobTitle-->
+	<Variable name="JobTitle" source="query" query="SELECT JobTitle FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Operating Unit or Site-->
+	<Variable name="Division" source="query" query="SELECT Division FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Shift-->
+	<Variable name="Shift" source="query" query="SELECT classification FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Benefit Status-->
+	<Variable name="Benefitspecialscheduledescr" source="query" query="SELECT 
+(case when upper(BenefitSpecialScheduleDescr)='S' then '36 hour / .9 Option' 
+when upper(BenefitSpecialScheduleDescr)='8' then 'Contingent' 
+when upper(BenefitSpecialScheduleDescr)='1' then 'Full Time'
+when upper(BenefitSpecialScheduleDescr)='N' then 'Non DMC Employee'
+when upper(BenefitSpecialScheduleDescr)='2' then 'PT 2 (68 to 79 hrs)'
+when upper(BenefitSpecialScheduleDescr)='3' then 'PT 3 (53 - 67 hrs)(JOA-P 40-79)'
+when upper(BenefitSpecialScheduleDescr)='4' then 'PT 4 (40 50 52 hrs)'
+when upper(BenefitSpecialScheduleDescr)='6' then 'Stipend - GME'
+when upper(BenefitSpecialScheduleDescr)='7' then 'Student (Stipend)' else '' end) as BenefitSpecialScheduleDescr FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Hourly Wage or Annual Salary-->
+	<Variable name="Wage" source="query" query="SELECT HRWage FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Type of Position-->
+	<Variable name="PositionType" source="query" query="SELECT (case when upper(OTPLANDESCR)='H' then 'Hourly' when upper(OTPLANDESCR)='S' then 'Salary' else OTPLANDESCR end) as PositionType FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Hiring Manager Name-->
+	<Variable name="HiringMgrName" source="query" query="SELECT hmname FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Hiring Manager Phone-->
+	<Variable name="HiringMgrPhone" source="query" query="SELECT hmphone FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Employee ID-->
+	<Variable name="EmployeeID" source="query" query="SELECT employeeID FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Hire Date-->
+	<Variable name="HireDate" source="query" query="SELECT (convert (varchar, HireDate, 101)) FROM procNewHires WHERE userid = '[*tkn.userid*]'" />
+	<!-- Added for Recruiter-->
+	<Variable name="Recruiter" source="query" query="SELECT RecruiterName FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" />
+  </Variables>
+  <!-- Added for email recipient of email -->
+  <Variable name="EmailRecipient" source="query" query="select hiringmanageremail from ProcNewHiresCustom where userid = '[*tknUserID*]'"/>
+    
+  <Com by="DHI" date="08/13/2008">
+    This agent updates the required workflow task table when the required task is complete.
+  </Com>
+  <Agent id="30" process="post" event="onpostworkflow" name="ExecuteQuery" executeinsteps="9" trigger="[agent.count=0]" connection="local" identity="">
+    <Params>
+      <Param name="query" value="" type="cdata"/>
+      <![CDATA[
+        INSERT INTO EnvUserWorkflowRequiredTasks (userProcessID, wfStageTrackingID, stepCode, envelopeID, completedBy, completedDate)
+        Values([*userProcessID*], [*stageTrackingID*], '[*stepCode*]', '[*envelopeid*]', '[*user.userid*]', GETDATE())
+      ]]>
+      <Param name="connstr" value="local"/>
+    </Params>
+    <Conditions>
+      <Condition fieldname="count" query="SELECT COUNT(*) FROM EnvUserWorkflowRequiredTasks WHERE userProcessID = [*userProcessID*] AND wfStageTrackingID = [*stageTrackingID*] AND stepCode = '[*stepCode*]'"/>
+    </Conditions>
+  </Agent>
+
+	<Agent id="50" process="post" event="onpostworkflow" executeinsteps="1" name="ReplaceValue" connection="local" trigger="" query="SELECT hmemail FROM ProcNewHiresCustom WHERE userid = '[*tkn.userid*]'" successmessage="" failmessage="">
+		<Params>
+			<Param name="source" value="database"/>
+			<Param name="replace" value="tkn.EmailAddress"/>
+		</Params>
+	</Agent>
+	
+	<Agent id="55" process="post" event="onpostworkflow" executeinsteps="1" name="ReplaceValue" connection="local" trigger="" query="SELECT hmname FROM ProcNewHiresCustom WHERE userid = '[*tkn.userid*]'" successmessage="" failmessage="">
+		<Params>
+			<Param name="source" value="database"/>
+			<Param name="replace" value="tkn.EmailName"/>
+		</Params>
+	</Agent>
+  
+  <Com  by="JLewis" date="9/29/2014">
+		Description   :  Send Offer Letter Email.
+  </Com>
+   <Agent id="60" name="EMail" event="onpostworkflow" trigger="[data.SendMailFlag='1']" executeinsteps="1" process="post"  successmessage="" failmessage="" >
+
+   <Params>
+	      <Param name="mailto" value="[*tkn.EmailAddress*]" type="email" />
+		  <Param name="mailtoemailaddress" value="[*tkn.EmailAddress*]" type="email" />
+		  <Param name="mailtoname" value="[*tkn.EmailName*]" type="email" />
+		  <Param name="mailfrom" value="EApplica@dmc.org " type="email" />
+		  <Param name="mailfromname" value="EnwisenApplicants@dmc.org" type="email" />
+		  <Param name="mailsubject" value="New Employee Accepted Offer Letter" />
+          <Param name="mailbody" value="&lt;font face='verdana' size='2'&gt;&lt;p&gt;[*Date*]&lt;/p&gt;
+		  &lt;p&gt;[*NewHireName*]&lt;br /&gt;[*Address1*]&lt;br /&gt;[*Address2*]&lt;/p&gt;
+		  &lt;p&gt;Dear [*Prefix*] [*NewHireName*],&lt;/p&gt;
+		  &lt;p&gt;We are pleased to confirm your acceptance of our conditional offer of employment as [*JobTitle*] at the Detroit Medical Center at [*Division*]. Further details of your position are:&lt;/p&gt;
+		  &lt;p&gt;Shift: [*Shift*]&lt;br /&gt;Benefit Status: [*Benefitspecialscheduledescr*]&lt;br /&gt;Pay Rate: [*Wage*]&lt;br /&gt;Type of position: [*PositionType*]&lt;br /&gt;Supervisor: [*HiringMgrName*], who can be reached at [*HiringMgrPhone*]&lt;br /&gt;Employee ID#: [*EmployeeID*]&lt;br /&gt;TENTATIVE Start Date: [*HireDate*]&lt;/p&gt; 
+		  &lt;p&gt;Per Detroit Medical Center policy, all job offers are contingent upon successful completion of: 1&#41; a pre-placement physical exam, which includes a drug screen, nicotine screen, antibody TITERS testing, flu vaccination and TB skin test; 2&#41; reference verification; 3&#41; criminal background check, 4&#41; employment eligibility verification, &#40;Completion of the I-9 Form requires that you provide documentation which supports your legal right to work in the U.S.&#41; and 5&#41; completion of Compliance &#40;Net Learning&#41; Training, all prior to your start date. Your hire is also dependent upon the DMC having a continuing need for personnel in the position offered as of your start date.&lt;/p&gt; 
+		  &lt;p&gt;Under state and federal law, if you require a reasonable accommodation to perform the work for which you have been hired, please notify a member of the staff where your physical is conducted.&lt;/p&gt; &lt;p&gt;Human Resources will contact you to confirm your start date once the above requirements have been satisfied.   We are looking forward to having you join the Detroit Medical Center. If you have any questions regarding the new hire process, please contact me, or our campus recruiting team general line:&lt;/p&gt; 
+		  &lt;table border='0' cellpadding='2' style='margin-left:10px;margin-top:0'&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px'&gt;
+		  &lt;td style='padding:0 5px;'&gt;Midtown Nursing&lt;/td&gt;
+		  &lt;td style='padding:0 5px;'&gt;313/578-3033&lt;/td&gt;&lt;/tr&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px'&gt;
+		  &lt;td style='padding:0 5px;'&gt;Midtown Non-Nursing&lt;/td&gt;
+		  &lt;td style='padding:0 5px;'&gt;313/578-3980&lt;/td&gt;&lt;/tr&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px'&gt;
+		  &lt;td style='padding:0 5px;'&gt;Sinai-Grace&lt;/td&gt;
+		  &lt;td style='padding:0 5px;'&gt;313/966-3101&lt;/td&gt;&lt;/tr&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px'&gt;
+		  &lt;td style='padding:0 5px;'&gt;Huron Valley - Sinai&lt;/td&gt;
+		  &lt;td style='padding:0 5px;'&gt;248/937-4041&lt;/td&gt;&lt;/tr&gt;
+		  &lt;/table&gt;
+		  &lt;p&gt;Sincerely,&lt;br /&gt;[*Recruiter*]&lt;br /&gt;Recruiter&lt;/p&gt;
+		  &lt;p&gt;Cc: Employee file&lt;/p&gt;
+		  &lt;p&gt;By typing my full legal name below, I am signing and indicate my acceptance of the offer as described above. E-Signature:&lt;/p&gt;
+		  &lt;table border='0' cellpadding='2' style='margin-left:10px;margin-top:0'&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px;text-decoration:underline;'&gt;
+		  &lt;td width='40%' style='padding:0 5px;'&gt;[*NewHireName*]&lt;/td&gt;
+		  &lt;td width='40%' style='padding:0 5px;'&gt;[*Date*]&lt;/td&gt;&lt;/tr&gt;
+		  &lt;tr style='font-family:verdana;font-size:12px'&gt;
+		  &lt;td style='padding:0 5px;'&gt;&#40;Legal Full Name&#41;&lt;/td&gt;
+		  &lt;td style='padding:0 5px;'&gt;Date&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+		  &lt;/font&gt;"/>
+	<Param name="priority" value="normal"/>
+     
+	</Params>  
+  </Agent>
+
+  <Workflow>
+    <Step id="1" name="EENew" prepopulate="yes" passcriteria="">
+      <Onpass track="yes" nextstep="2" message="" redirecturl="blank.html">
+        <Field name="status" value="Inprocess"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="2" name="EEUpdate" passcriteria="">
+      <Onpass track="yes" nextstep="2" message="" redirecturl="blank.html">
+        <Field name="status" value="Inprocess"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="3" name="HRUpdate" historydisplay="all" passcriteria="">
+      <Onpass track="yes" nextstep="3" message="" redirecturl="Page.aspx?code=[*me.code*]&amp;envelopeid=[*envelopeid*]&amp;step=HRView">
+        <Field name="status" value="Inprocess"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="4" name="HRAccept" historydisplay="all" passcriteria="">
+      <Onpass track="yes" nextstep="5" message="" redirecturl="Page.aspx?code=[*me.code*]&amp;envelopeid=[*envelopeid*]&amp;step=HRView">
+        <Field name="status" value="Complete"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="5" name="EEView" passcriteria="">
+      <Onpass nextstep="0" message="" redirecturl="blank.html">
+        <Field name="status" value="Complete"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="6" name="HRView" passcriteria="">
+      <Onpass nextstep="0" message="" redirecturl="blank.html">
+        <Field name="status" value="Complete"/>
+      </Onpass>
+      <Onfail nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="7" name="WFView" passcriteria="">
+      <Onpass nextstep="0" message="" redirecturl=""/>
+    </Step>
+    <Step id="8" name="WFEdit" passcriteria="">
+      <Onpass nextstep="0" message="" redirecturl="Page.aspx?code=[*me.code*]&amp;userprocessid=[*userProcessID*]&amp;stagetrackingid=[*stageTrackingID*]&amp;stepcode=[*stepCode*]&amp;envelopeid=[*envelopeid*]&amp;step=[*me.step*]&amp;updateRequired=1">
+        <Field name="status" value="Complete"/>
+      </Onpass>
+    </Step>
+    <Step id="9" name="WFRequired" passcriteria="">
+      <Onpass nextstep="0" message="" redirecturl="Page.aspx?code=[*me.code*]&amp;userprocessid=[*userProcessID*]&amp;stagetrackingid=[*stageTrackingID*]&amp;stepcode=[*stepCode*]&amp;envelopeid=[*envelopeid*]&amp;step=[*me.step*]&amp;updateRequired=1">
+        <Field name="status" value="Complete"/>
+      </Onpass>
+    </Step>
+  </Workflow>
+
+  
+  <Header>
+    <![CDATA[
+      <!-- 06/07/2012: Vivien Tony, called the new 4.7 css file and client specific css file-->
+      <link rel="stylesheet" type="text/css" href="/ASI/Scripts/ext-2.1/resources/css/xtheme-gray.css"/>
+      <!-- <link rel="stylesheet" type="text/css" href="/StyleSheets/Onboarding/v4/onboarding.css"/>-->
+      <link rel="stylesheet" type="text/css" href="/ASI/StyleSheets/Onboarding/v4/onboarding4_7.css"/>
+      <link rel="stylesheet" type="text/css" media="screen" href="/HR/[*tkn.clientName*]/StyleSheets/CSS/layout.css"/>
+	  <style>          
+          #pnlPersonalInfo {
+          margin-bottom: -10px;
+          }          
+			
+          </style>          
+          
+    ]]>
+  </Header>
+
+  <Data>
+
+    <Panel id="1" name="pnlHRComments" type="Stacked" caption="" visibleinsteps="3,4" prepopulateinsteps="1" ext="hideLabels: true, anchor: '-6',">
+      <Field name="formstate" type="hidden" datatype="string" visibleinsteps="3,4" historysave="false"/>
+      <Html name="HRReviewInfo" visibleinsteps="4">
+        <![CDATA[         
+          <div class="hrcomments">Form is reviewed and approved.</div>
+        ]]>
+      </Html>
+	
+	  
+    </Panel>
+	
+    <Panel id="3" name="pnlPersonalInfo" type="Stacked" caption="" connection="local" datasourcetype="query" query="select pnh.userid, 
+    (isnull(pnh.firstname,'') + ' ' + isnull(pnh.lastname,'')) as NewHireName, 
+    ((pnh.Address1 + ' ' + pnh.Address2)) as Address, 
+    (pnh.City + ', ' + pnh.State + ' ' + pnh.PostalCode) as Address2, 
+    pnh.Prefix as Prefix, 
+	(isnull(pnh.prefix,'') + ' ' + isnull(pnh.firstname,'') + ' ' + isnull(pnh.lastname,'')) as PrefixName,
+    pnh.Classification as Shift, 
+    pnh.Division as Division,
+    pnh.JobTitle as JobTitle, 
+    pnh.EmployeeID as EmployeeID, 
+    CONVERT(varchar(10), pnh.HireDate, 101) as HireDate,
+    pnhc.Benefitspecialscheduledescr as BenStatus,
+    pnhc.HRWage as Wage,
+    (case when upper(pnhc.OTPLANDESCR)='H' then 'Hourly' when upper(pnhc.OTPLANDESCR)='S' then 'Salary' else pnhc.OTPLANDESCR end) as PositionType,
+    pnhc.hmname as HiringMgrName,
+    pnhc.hmphone as HiringMgrPhone,
+    pnhc.RecruiterName as RecruitName    
+FROM ProcNewHires pnh
+INNER JOIN ProcNewHiresCustom pnhc ON pnhc.UserID = pnh.UserID
+WHERE pnh.userid='[*tkn.userid*]'" datadestination="ProcNewHires" datadestinationtype="table" prepopulateinsteps="1,2,3,4,5,6,7,8,9" ext="anchor: '-6'," labelwidth="120" instruction="">
+
+	     
+      <!-- Fields to populate the PDF -->
+
+
+      <Field name="hidDate" caption="Date" type="hidden" visibleinsteps="" editableinsteps="0" datatype="date" size="25" maxlength="100" datasourcetype="query" query="SELECT CONVERT(varchar(10), GETDATE(), 101)"/>
+
+      <Field name="hidNewHireName" type="hidden" visibleinsteps="" fieldsource="NewHireName" datasourcetype="Panel" fielddestination="NewHireName" datadestinationtype="query" query="SELECT (isnull(firstname,'') + ' ' + isnull(lastname,'')) as NewHireName FROM procnewhires where userid='[*tkn.userid*]'" datatype="string" pdffieldname="hidNewHireName"/>
+	
+	<Field name="hidAddress" type="hidden" visibleinsteps="" fieldsource="Address" datasourcetype="Panel" fielddestination="Address" datadestinationtype="Panel" datatype="string" pdffieldname="hidAddress"/>
+	
+	<Field name="hidAddress2" type="hidden" visibleinsteps="" fieldsource="Address2" datasourcetype="Panel" fielddestination="Address2" datadestinationtype="Panel" datatype="string" pdffieldname="hidAddress2"/>
+	
+	<Field name="hidPrefixName" type="hidden" visibleinsteps="" fieldsource="PrefixName" datasourcetype="Panel" fielddestination="PrefixName" datadestinationtype="Panel" datatype="string" pdffieldname="hidPrefixName"/>
+	
+	<Field name="hidShift" type="hidden" visibleinsteps="" fieldsource="Shift" datasourcetype="Panel" fielddestination="Shift" datadestinationtype="Panel" datatype="string" pdffieldname="hidShift"/>
+	
+	<Field name="hidDivision" type="hidden" visibleinsteps="" fieldsource="Division" datasourcetype="Panel" fielddestination="Division" datadestinationtype="Panel" datatype="string" pdffieldname="hidDivision"/>
+	
+	<Field name="hidJobTitle" type="hidden" visibleinsteps="" fieldsource="JobTitle" datasourcetype="Panel" fielddestination="JobTitle" datadestinationtype="Panel" datatype="string" pdffieldname="hidJobTitle"/>
+	
+	<Field name="hidEmployeeID" type="hidden" visibleinsteps="" fieldsource="EmployeeID" datasourcetype="Panel" fielddestination="EmployeeID" datadestinationtype="Panel" datatype="string" pdffieldname="hidEmployeeID"/>
+	
+	<Field name="hidHireDate" type="hidden" visibleinsteps="" fieldsource="HireDate" datasourcetype="Panel" fielddestination="HireDate" datadestinationtype="Panel" datatype="string" pdffieldname="hidHireDate"/>
+	
+	<Field name="hidBenStatus" type="hidden" visibleinsteps="" fieldsource="BenStatus" datasourcetype="Panel" fielddestination="BenStatus" datadestinationtype="Panel" datatype="string" pdffieldname="hidBenStatus"/>
+	<Field name="hidBenStatus" type="hidden" visibleinsteps="" fieldsource="" datasourcetype="query" query="SELECT 
+(case when upper(BenefitSpecialScheduleDescr)='S' then '36 hour / .9 Option' 
+when upper(BenefitSpecialScheduleDescr)='8' then 'Contingent' 
+when upper(BenefitSpecialScheduleDescr)='1' then 'Full Time'
+when upper(BenefitSpecialScheduleDescr)='N' then 'Non DMC Employee'
+when upper(BenefitSpecialScheduleDescr)='2' then 'PT 2 (68 to 79 hrs)'
+when upper(BenefitSpecialScheduleDescr)='3' then 'PT 3 (53 - 67 hrs)(JOA-P 40-79)'
+when upper(BenefitSpecialScheduleDescr)='4' then 'PT 4 (40 50 52 hrs)'
+when upper(BenefitSpecialScheduleDescr)='6' then 'Stipend - GME'
+when upper(BenefitSpecialScheduleDescr)='7' then 'Student (Stipend)' else '' end) as BenefitSpecialScheduleDescr FROM procNewHiresCustom WHERE userid = '[*tkn.userid*]'" datadestinationtype="" datatype="nstring" />
+	
+	<Field name="hidWage" type="hidden" visibleinsteps="" fieldsource="Wage" datasourcetype="Panel" fielddestination="Wage" datadestinationtype="Panel" datatype="string" pdffieldname="hidWage"/>
+	
+	<Field name="hidPositionType" type="hidden" visibleinsteps="" fieldsource="PositionType" datasourcetype="Panel" fielddestination="PositionType" datadestinationtype="Panel" datatype="string" pdffieldname="hidPositionType"/>
+	
+	<Field name="hidHiringMgrName" type="hidden" visibleinsteps="" fieldsource="HiringMgrName" datasourcetype="Panel" fielddestination="HiringMgrName" datadestinationtype="Panel" datatype="string" pdffieldname="hidHiringMgrName"/>
+	
+	<Field name="hidHiringMgrPhone" type="hidden" visibleinsteps="" fieldsource="HiringMgrPhone" datasourcetype="Panel" fielddestination="HiringMgrPhone" datadestinationtype="Panel" datatype="string" pdffieldname="hidHiringMgrPhone"/>
+	
+	<Field name="hidRecruitName" type="hidden" visibleinsteps="" fieldsource="RecruitName" datasourcetype="Panel" fielddestination="RecruitName" datadestinationtype="Panel" datatype="string" pdffieldname="hidRecruitName"/>
+	
+	  <!-- End of fields to populate the PDF -->
+	
+	<!-- For the email -->
+	<Field name="SendMailFlag" value="0" type="hidden" visibleinsteps="" datatype="string" historysave = "false"/> 
+        
+      <Html name="Letter" visibleinsteps="">
+		  
+        <![CDATA[ 
+		
+		<style>
+			p {
+				font-size: 12px; 
+				line-height: 18px; 
+				margin: 0px 0px 0px 0px;
+				}
+			
+		</style>
+		
+         <div class="screeningAuthBanner"> 
+		 
+		  <p id="formInstruction">[*Date*]</p>
+                 
+          <p id="formInstruction">[*NewHireName*]<br />[*Address1*]<br />[*Address2*]</p>
+		  
+		  <p id="formInstruction">Dear [*PrefixName*],</p>
+		  
+		  <p id="formInstruction">We are pleased to confirm your acceptance of our conditional offer of employment as [*JobTitle*] at the Detroit Medical Center at [*Division*]. Further details of your position are:</p>
+		  
+		  <p id="formInstruction">Shift: [*Shift*]<br />
+			Benefit Status: [*Benefitspecialscheduledescr*]<br />
+			Pay Rate: [*Wage*]<br />
+			Type of position: [*PositionType*]<br />
+			Supervisor:  [*HiringMgrName*], who can be reached at [*HiringMgrPhone*]<br />
+			Employee ID#: [*EmployeeID*]<br />
+			TENTATIVE Start Date: [*HireDate*]</p>
+			<p id="formInstruction">Per Detroit Medical Center policy, all job offers are contingent upon successful completion of: 1) a pre-placement physical exam, which includes a drug screen, nicotine screen, antibody TITERS testing, flu vaccination and TB skin test; 2) reference verification; 3) criminal background check, 4) employment eligibility verification, (Completion of the I-9 Form requires that you provide documentation which supports your legal right to work in the U.S.) and 5) completion of Compliance (Net Learning) Training, all prior to your start date. Your hire is also dependent upon the DMC having a continuing need for personnel in the position offered as of your start date.</p>
+		 </div>
+        ]]>
+      </Html>
+	  
+	</Panel>
+	
+	     
+		
+		<Panel id="4" name="pnlContactInfo" type="Stacked" caption="" connection="local" datasourcetype="query" query="select userid FROM ProcNewHires WHERE userid='[*tkn.userid*]'" datadestination="ProcNewHires" datadestinationtype="table" prepopulateinsteps="1,2,3,4,5,6,7,8,9" ext="anchor: '-6'," instruction="">
+		  
+		<Html name="Letter2" visibleinsteps="">
+		  
+			<![CDATA[ 
+			
+				<style>
+					p {font-size: 12px; 
+						line-height: 18px; 
+						margin: 0 0 12px 0;
+						
+						}
+				</style>
+			
+				<div> 
+					 
+				  <p id="formInstruction">Under state and federal law, if you require a reasonable accommodation to perform the work for which you have been hired, please notify a member of the staff where your physical is conducted.</p>
+				  
+				  <p id="formInstruction">Human Resources will contact you to confirm your start date once the above requirements have been satisfied.   We are looking forward to having you join the Detroit Medical Center. If you have any questions regarding the new hire process, please contact me, or our campus recruiting team general line:</p>
+				  
+				  <table border="0" cellpadding="4" cellspacing="0" style="margin-left:10px;" id="formInstruction">
+					<tr>
+						<td style="padding:4px">Midtown Nursing</td><td style="padding:4px">313/578-3033</td>
+					</tr>
+					<tr>
+						<td style="padding:4px">Midtown Non-Nursing</td><td style="padding:4px">313/578-3980</td>
+					</tr>
+					<tr>
+						<td style="padding:4px">Sinai-Grace</td><td style="padding:4px">313/966-3101</td>
+					</tr>
+					<tr>
+						<td style="padding:4px">Huron Valley - Sinai</td><td style="padding:4px">248/937-4041</td>
+					</tr>
+				  </table><br />
+				  
+				  <p id="formInstruction">Sincerely,<br />[*Recruiter*]<br />Recruiter</p>
+				  
+				  <p id="formInstruction">Cc: Employee file</p>
+				  
+				</div>
+			]]>
+      </Html>
+         
+    </Panel>
+	
+	
+
+      <Panel id="5" name="SignatureInstruction" type="Stacked" caption="" instruction="[$SignatureInstructions$]" visibleinsteps="" ext="anchor: '-6'," prepopulateinsteps="1" labelwidth="130">
+
+      <Field name="esign" value="[$SignedElectronically$]" type="hidden" visibleinsteps="" required="no" />
+      <Field name="hidposteddate" caption="Date" type="hidden" visibleinsteps="" editableinsteps="0" datatype="date" size="25" maxlength="100" datasourcetype="query" query="SELECT CONVERT(varchar(10), GETDATE(), 101)" />
+      <Com by="Dan" date="06/13/2008">
+        These fields are updated via JavaScript
+      </Com>
+      <Field name="userprocessstepid" type="hidden" visibleinsteps="" datatype="nstring" required="no" />
+      <Field name="userprocessid" type="hidden" visibleinsteps="" datatype="nstring" required="no" />
+      <Field name="userstepid" type="hidden" visibleinsteps="" datatype="nstring" required="no" />
+      <Com by="Dan" date="06/13/2008">
+        This field is updated by the steps of the form
+      </Com>
+      <Field name="status" type="hidden" visibleinsteps="" datatype="nstring" value="" />
+
+      <Fieldgroup visibleinsteps="" type="HORZ" layout="column" >
+
+        <Fieldgroup visibleinsteps="" layout="form" type="fieldset" ext="columnWidth:.75,">
+          <Field name="signature" caption="[$EmployeeSignature$]" type="text" visibleinsteps="" editableinsteps="1,2" required="no" validationtype="nameLast" size="40" width="695"  maxlength="101" instruction="[$Legalfullname$]"  instructionreadonly="false" ext="msgTarget: 'under',"/>
+        </Fieldgroup>
+
+        <Fieldgroup visibleinsteps="" layout="form" type="fieldset" ext="columnWidth:.25,">
+          <Field name="posteddate" caption="[$Date$]" type="text" visibleinsteps="" editableinsteps="0" datatype="date" size="25" maxlength="100" datasourcetype="query" query="SELECT CONVERT(varchar(10), GETDATE(), 101)" />
+        </Fieldgroup>
+
+      </Fieldgroup>
+    </Panel>
+	
+	<Panel id="10" name="signatureInfo" caption="" type="" connection="Local" datasourcetype="query" query="SELECT FirstName, LastName FROM t_cususer WHERE accountid = '[*tkn.userid*]'" prepopulateinsteps="1,2,3,4,5,6,7,8,9">
+		<Field name="sfirstname" type="hidden" fieldsource="FirstName" datasourcetype="panel" visibleinsteps="" datatype="nstring" required="no" size="20" maxlength="50" validationtype="name" />
+		<Field name="slastname" type="hidden" fieldsource="LastName" datasourcetype="panel" visibleinsteps="" datatype="nstring" required="no" size="20" maxlength="50" validationtype="name" />
+	</Panel>
+	
+	<Control name="Export2PDFButton" value="Open Form" icon="pdf.gif" type="button" visibleinsteps="">
+			<Events>
+				<Event type="click" code="pdfExport('DetroitMedicalCenter/DMCOfferLetterFinalSep112014.pdf');"/>
+			</Events>
+			<Function name="pdfExport">
+				<Com by="DHI" date="06/13/2008">
+					Author:      Dan Ivarson
+					Date:        06/13/2008
+					Function:    pdfExport
+					Description: This function is used to export the data to pdf file
+					Parameters:  psPDFPath - The path the PDF will be exported to
+					Returns:     none
+				</Com>
+				<Code>
+					<![CDATA[
+						function pdfExport(psPDFPath)
+						{
+							var formObj = [*form*];
+
+							if(formObj.isValid(true))
+							{
+								if (formObj.isSignatureValid('sfirstname,slastname', 'signature', true) != false)
+								{
+									formObj.CreateVarHash("export=instant&Pdffile="+psPDFPath);
+									formObj.swSubmit("PDF.aspx?code=[*me.code*]", "_blank");
+									formObj.setStatus('Ready');
+								}
+							}
+						}
+						
+						]]>
+				</Code>
+			</Function>
+		</Control>
+
+    <Control name="SavedButton" type="button" value="Save" visibleinsteps="8,9">
+      <Events>
+        <Event type="click" code="submitform('[*me.step*]')"/>
+      </Events>
+    </Control>
+
+  </Data>
+  <Scriptsection validate="true">
+    <Includes>
+      <Include name="/ASI/Scripts/Smartware/[*Script_SMV3*]/Form/v2_ExtTourForm.js"/>
+    </Includes>
+
+    <Functioncalls>
+      <Functioncall value="[*form*].enableTour()" event="onload" executableinsteps="1,2,5"/>
+      <Functioncall value="[*form*].getParentID()" event="onload" executableinsteps="1"/>
+      <!--<Functioncall value="setTypeStateFields()" event="onload" executableinsteps=""/>     -->
+      <Functioncall value="setSignature()" event="onload" executableinsteps="2,3,4,5,6,7,8,9"/>
+      <Functioncall value="clearRequiredStatus()" event="onload" executableinsteps="8,9" executablecriteria="[variable.updateRequired = 1]"/>
+
+    </Functioncalls>
+
+    <Scriptfunctions>
+	  
+  
+	  <Function name="setSignature">
+        <Com by="swati" date="05/19/2009">
+          Function:    setSignature
+          Description: Sets the signature acccording to latest firstname and lastname
+        </Com>
+        <Code>
+          <![CDATA[
+				function setSignature()
+				{
+					var formObj = [*form*];
+						formObj.F("signature").setValue(formObj.F("sfirstname").getValue()+' '+formObj.F("slastname").getValue());
+				}
+			  ]]>
+        </Code>
+      </Function>
+	<!--
+	<Function name="setRequiredNepotism">
+        <Com by="DHI" date="08/26/2008">
+          Author:      Dan Ivarson
+          Date:        08/26/2008
+          Function:    setRequiredNepotism
+          Description: Determines the required Nepotism contact fields based on the value set in mgrRelative
+          contact name
+          Parameters:  none
+          Returns:     none
+        </Com>
+        <Code>
+          <![CDATA[
+              function setRequiredNepotism()
+              {
+                  var formObj = [*form*];
+                  
+                  if (formObj.F("mgrRelative_1").getValue() == true)
+                  {
+					  formObj.fieldRequired("mgrRelativeName", true);
+                      formObj.fieldRequired("mgrRelativeRelation", true);
+                  }
+                  else
+                  {
+					  formObj.fieldRequired("mgrRelativeName", false);
+                      formObj.fieldRequired("mgrRelativeRelation", false);
+                  }
+              }
+            ]]>
+        </Code>
+      </Function>
+	  
+			
+			<Function name="CheckNepotismButtons">
+				<Code>
+					<![CDATA[
+					function CheckNepotismButtons()
+					{
+					var result = true
+					var formObj = [*form*];
+
+					if((formObj.F("mgrRelative_1").checked == false) && (formObj.F("mgrRelative_2").checked == false))
+						{
+						formObj.swAlert("Please check one option!");
+						result = false;
+						}
+						
+						return result;
+						
+					}
+					]]>
+				</Code>
+			</Function>
+
+	  -->
+      <Function name="submitform">
+        <Com by="DHI" date="06/13/2008">
+          Author:      Dan Ivarson
+          Date:        06/13/2008
+          Function:    submitform
+          Description: Validates and submits the form
+          Parameters:  pStep - The step to advance to
+          Returns:     true if submitted and false otherwise
+        </Com>
+        <Code>
+          <![CDATA[
+            function submitform(pStep)
+            {	
+                var result = false;
+                var stepID = [*me.stepid*];
+                var formObj = [*form*];
+                
+                if((stepID  == 1) || (stepID  == 2) || (stepID ==5))
+                    pStep = "[*me.step*]";	
+	
+                    
+                
+                    //if(formObj.isValid(true) && CheckNepotismButtons())
+					if(formObj.isValid(true))
+                    {
+                        if(formObj.isSignatureValid('sfirstname,slastname', 'signature', true) != false)
+						{
+							formObj.CreateVarHash("envelopeid=[*envelopeid*]&userProcessID=[*userProcessID*]&stageTrackingID=[*stageTrackingID*]&stepCode=[*stepCode*]&step=" + pStep);
+							
+							if (stepID == 1) 
+							{
+							   [*form*].F("SendMailFlag").setValue("1");
+							}
+							
+							if (stepID == 9) 
+							{
+							   formObj.AppendToVarHash("updateRequired=1");
+							}
+							
+							formObj.swSubmit("Page.aspx?code=[*me.code*]", "_self");
+
+							if (([*me.stepid*] == 3) || ([*me.stepid*] == 4))
+							{
+								formObj.swCloseChildWindow("swURLWin");
+							}
+
+							result = true;
+							
+						}
+                    }
+                
+                return result;
+            }
+          ]]>
+        </Code>
+      </Function>
+	  
+      <Function name="clearRequiredStatus">
+        <Com by="DHI" date="06/25/2009">
+          Author:      Dan Ivarson
+          Date:        06/25/2009
+          Function:    clearRequiredStatus
+          Description: Calls the parent to update the required status of this form since required actions
+          should have been performed now.
+          Parameters:  none
+          Returns:     none
+		   Modified:    06/12/2013, cgm - added me.step as a parameter to the updateRequiredStatus call
+        </Com>
+        <Code>
+          <![CDATA[
+					function clearRequiredStatus() {
+						if (parent.updateRequiredStatus) {
+							parent.updateRequiredStatus("[*stepCode*]", "[*me.step*]" );
+						}
+					}
+				]]>
+        </Code>
+      </Function>
+	  
+	  
+
+    </Scriptfunctions>
+  </Scriptsection>
+</Form>
